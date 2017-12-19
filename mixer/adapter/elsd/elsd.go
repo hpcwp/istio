@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	//"github.com/hpcwp/istio/mixer/adapter/elsd/config"
-	"istio.io/istio/mixer/adapter/elsd/config"
+	"github.com/hpcwp/istio/mixer/adapter/elsd/config"
+	//"istio.io/istio/mixer/adapter/elsd/config"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/metric"
 )
