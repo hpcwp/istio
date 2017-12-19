@@ -16,7 +16,6 @@ package ingress
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -36,9 +35,9 @@ func convertIngress(ingress v1beta1.Ingress, domainSuffix string) []model.Config
 	tls := ""
 
 	if len(ingress.Spec.TLS) > 0 {
-		// due to lack of listener SNI in the proxy, we only support a single secret and ignore secret hosts
+		// TODO(istio/istio/issues/1424): implement SNI
 		if len(ingress.Spec.TLS) > 1 {
-			glog.Warningf("ingress %s requires several TLS secrets which is not supported by envoy!", ingress.Name)
+			glog.Warningf("ingress %s requires several TLS secrets but Envoy can only serve one", ingress.Name)
 		}
 		secret := ingress.Spec.TLS[0]
 		tls = fmt.Sprintf("%s.%s", secret.SecretName, ingress.Namespace)
@@ -51,6 +50,10 @@ func convertIngress(ingress v1beta1.Ingress, domainSuffix string) []model.Config
 	}
 
 	for i, rule := range ingress.Spec.Rules {
+		if rule.HTTP == nil {
+			glog.Warningf("invalid ingress rule for host %q, no paths defined", rule.Host)
+			continue
+		}
 		for j, path := range rule.HTTP.Paths {
 			name := encodeIngressRuleName(ingress.Name, i+1, j+1)
 			ingressRule := createIngressRule(name, rule.Host, path.Path,
@@ -58,7 +61,6 @@ func convertIngress(ingress v1beta1.Ingress, domainSuffix string) []model.Config
 			out = append(out, ingressRule)
 		}
 	}
-
 	return out
 }
 
@@ -93,15 +95,9 @@ func createIngressRule(name, host, path, domainSuffix string,
 	}
 
 	if path != "" {
-		if isRegularExpression(path) {
-			if strings.HasSuffix(path, ".*") && !isRegularExpression(strings.TrimSuffix(path, ".*")) {
-				rule.Match.Request.Headers[model.HeaderURI] = &routing.StringMatch{
-					MatchType: &routing.StringMatch_Prefix{Prefix: strings.TrimSuffix(path, ".*")},
-				}
-			} else {
-				rule.Match.Request.Headers[model.HeaderURI] = &routing.StringMatch{
-					MatchType: &routing.StringMatch_Regex{Regex: path},
-				}
+		if strings.HasSuffix(path, ".*") {
+			rule.Match.Request.Headers[model.HeaderURI] = &routing.StringMatch{
+				MatchType: &routing.StringMatch_Prefix{Prefix: strings.TrimSuffix(path, ".*")},
 			}
 		} else {
 			rule.Match.Request.Headers[model.HeaderURI] = &routing.StringMatch{
@@ -155,13 +151,6 @@ func decodeIngressRuleName(name string) (ingressName string, ruleNum, pathNum in
 	}
 
 	return
-}
-
-// isRegularExpression determines whether the given string s is a non-trivial regular expression,
-// i.e., it can potentially match other strings different than itself.
-// TODO: warning that Envoy regex language is not 1-1 with golang's regex language!
-func isRegularExpression(s string) bool {
-	return len(s) < len(regexp.QuoteMeta(s))
 }
 
 // shouldProcessIngress determines whether the given ingress resource should be processed

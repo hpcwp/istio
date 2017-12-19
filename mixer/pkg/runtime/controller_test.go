@@ -16,7 +16,6 @@ package runtime
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"reflect"
 	"testing"
@@ -49,7 +48,7 @@ func TestControllerEmpty(t *testing.T) {
 		evaluator:              nil,
 		typeChecker:            nil,
 		configState:            make(map[store.Key]*store.Resource),
-		dispatcher:             d,
+		resolverChangeListener: d,
 		resolver:               &resolver{}, // get an empty resolver
 		identityAttribute:      DefaultIdentityAttribute,
 		defaultConfigNamespace: DefaultConfigNamespace,
@@ -210,7 +209,7 @@ func TestController_workflow(t *testing.T) {
 		evaluator:              nil,
 		typeChecker:            nil,
 		configState:            configState,
-		dispatcher:             d,
+		resolverChangeListener: d,
 		resolver:               res, // get an empty resolver
 		identityAttribute:      DefaultIdentityAttribute,
 		defaultConfigNamespace: DefaultConfigNamespace,
@@ -684,6 +683,3 @@ func TestController_KindMap(t *testing.T) {
 		t.Fatalf("Got %v\nwant %v", km, want)
 	}
 }
-
-var _ = flag.Lookup("v").Value.Set("99")
-var _ = flag.Lookup("logtostderr").Value.Set("true")
