@@ -11,3 +11,5 @@ servicecontrol: "istio.io/istio/mixer/adapter/servicecontrol"
 stackdriver: "istio.io/istio/mixer/adapter/stackdriver"
 statsd: "istio.io/istio/mixer/adapter/statsd"
 stdio: "istio.io/istio/mixer/adapter/stdio"
+elsd: "istio.io/istio/mixer/adapter/elsd"
+
