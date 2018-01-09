@@ -63,6 +63,10 @@ func (b *builder) SetMetricTypes(types map[string]*metric.Type) {
 ////////////////// Request-time Methods //////////////////////////
 // metric.Handler#HandleMetric
 func (h *handler) HandleMetric(ctx context.Context, insts []*metric.Instance) error {
+	
+	// Just logging
+	h.env.Logger().Infof("Handle metrics")
+
 	for _, inst := range insts {
 		if _, ok := h.metricTypes[inst.Name]; !ok {
 			h.env.Logger().Errorf("Cannot find Type for instance %s", inst.Name)
