@@ -1,3 +1,5 @@
+//go:generate $GOPATH/src/istio.io/istio/bin/mixer_codegen.sh -f mixer/adapter/elsd/config/config.proto
+
 package elsd
 
 import (
@@ -5,24 +7,27 @@ import (
 	"os"
 	"path/filepath"
 
+	"fmt"
 	"istio.io/istio/mixer/adapter/elsd/config"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/template/metric"
-	"fmt"
+
+	"github.com/hpcwp/elsd/pkg/api"
+	"google.golang.org/grpc"
+	"time"
 )
 
 type (
 	builder struct {
-		adpCfg *config.Params
+		adpCfg      *config.Params
 		metricTypes map[string]*metric.Type
-
 	}
 
 	handler struct {
-		f *os.File
+		f           *os.File
+		elsdUrl 	string
 		metricTypes map[string]*metric.Type
 		env         adapter.Env
-
 	}
 )
 
@@ -37,6 +42,7 @@ func (b *builder) Build(ctx context.Context, env adapter.Env) (adapter.Handler, 
 	var err error
 	var file *os.File
 	file, err = os.Create(b.adpCfg.FilePath)
+
 	return &handler{f: file, metricTypes: b.metricTypes, env: env}, err
 }
 
@@ -63,9 +69,14 @@ func (b *builder) SetMetricTypes(types map[string]*metric.Type) {
 ////////////////// Request-time Methods //////////////////////////
 // metric.Handler#HandleMetric
 func (h *handler) HandleMetric(ctx context.Context, insts []*metric.Instance) error {
-	
+
 	// Just logging
 	h.env.Logger().Infof("Handle metrics")
+
+	// Call elsd
+	h.elsdPing()
+
+	h.env.Logger().Infof("Elsd healthy")
 
 	for _, inst := range insts {
 		if _, ok := h.metricTypes[inst.Name]; !ok {
@@ -83,6 +94,29 @@ func (h *handler) HandleMetric(ctx context.Context, insts []*metric.Instance) er
 // adapter.Handler#Close
 func (h *handler) Close() error {
 	return h.f.Close()
+}
+
+func (h *handler) elsdPing() {
+	// Elsd address hardcoded for now - todo part of the adapter configuration
+	grpcAddr := "localhost:8082"
+
+	conn, err := grpc.Dial(grpcAddr, grpc.WithInsecure(), grpc.WithTimeout(time.Second))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v", err)
+		os.Exit(1)
+	}
+
+	defer conn.Close()
+
+	healthClient := api.NewHealthClient(conn)
+	_, err = healthClient.Check(context.Background(), &api.HealthCheckRequest{"els"})
+
+	if err != nil {
+		h.f.WriteString(fmt.Sprintf("elsd service is not responding \n"))
+		os.Exit(1)
+	}
+	h.f.WriteString(fmt.Sprintf("elsd is ready \n"))
+
 }
 
 ////////////////// Bootstrap //////////////////////////
