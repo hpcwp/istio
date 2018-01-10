@@ -548,6 +548,204 @@ var (
 				return resultBag, nil
 
 			},
+
+			/* runtime2 bindings */
+
+			// DispathGenAttrs dispatches the instance to the attribute producing handler.
+			DispatchGenAttrs: func(ctx context.Context, handler adapter.Handler, inst interface{}, attrs attribute.Bag,
+				mapper template.OutputMapperFn) (*attribute.MutableBag, error) {
+
+				// Convert the instance from the generic interface{}, to their specialized type.
+				instance := inst.(*adapter_template_kubernetesenv.Instance)
+
+				// Invoke the handler.
+				out, err := handler.(adapter_template_kubernetesenv.Handler).GenerateKubernetesEnvAttributes(ctx, instance)
+				if err != nil {
+					return nil, err
+				}
+
+				// Construct a wrapper bag around the returned output message and pass it to the output mapper
+				// to map $out values back to the destination attributes in the ambient context.
+				const fullOutName = "adapter_template_kubernetesenv.output."
+				outBag := newWrapperAttrBag(
+					func(name string) (value interface{}, found bool) {
+						field := strings.TrimPrefix(name, fullOutName)
+						if len(field) != len(name) {
+							switch field {
+
+							case "source_pod_ip":
+
+								return []uint8(out.SourcePodIp), true
+
+							case "source_pod_name":
+
+								return out.SourcePodName, true
+
+							case "source_labels":
+
+								return out.SourceLabels, true
+
+							case "source_namespace":
+
+								return out.SourceNamespace, true
+
+							case "source_service":
+
+								return out.SourceService, true
+
+							case "source_service_account_name":
+
+								return out.SourceServiceAccountName, true
+
+							case "source_host_ip":
+
+								return []uint8(out.SourceHostIp), true
+
+							case "destination_pod_ip":
+
+								return []uint8(out.DestinationPodIp), true
+
+							case "destination_pod_name":
+
+								return out.DestinationPodName, true
+
+							case "destination_labels":
+
+								return out.DestinationLabels, true
+
+							case "destination_namespace":
+
+								return out.DestinationNamespace, true
+
+							case "destination_service":
+
+								return out.DestinationService, true
+
+							case "destination_service_account_name":
+
+								return out.DestinationServiceAccountName, true
+
+							case "destination_host_ip":
+
+								return []uint8(out.DestinationHostIp), true
+
+							case "origin_pod_ip":
+
+								return []uint8(out.OriginPodIp), true
+
+							case "origin_pod_name":
+
+								return out.OriginPodName, true
+
+							case "origin_labels":
+
+								return out.OriginLabels, true
+
+							case "origin_namespace":
+
+								return out.OriginNamespace, true
+
+							case "origin_service":
+
+								return out.OriginService, true
+
+							case "origin_service_account_name":
+
+								return out.OriginServiceAccountName, true
+
+							case "origin_host_ip":
+
+								return []uint8(out.OriginHostIp), true
+
+							default:
+								return nil, false
+							}
+						}
+						return attrs.Get(name)
+					},
+					func() []string { return attrs.Names() },
+					func() { attrs.Done() },
+					func() string { return attrs.DebugString() },
+				)
+
+				// Mapper will map back $out values in the outBag into ambient attribute names, and return
+				// a bag with these additional attributes.
+				return mapper(outBag)
+			},
+
+			// CreateInstanceBuilder creates a new template.InstanceBuilderFN based on the supplied instance parameters. It uses
+			// the expression builder to create a new instance of a builder struct for the instance type. Created
+			// InstanceBuilderFn closes over this struct. When InstanceBuilderFn is called it, in turn, calls into
+			// the builder with an attribute bag.
+			//
+			// See template.CreateInstanceBuilderFn for more details.
+			CreateInstanceBuilder: func(instanceName string, param proto.Message, expb *compiled.ExpressionBuilder) (template.InstanceBuilderFn, error) {
+
+				// If the parameter is nil. Simply return nil. The builder, then, will also return nil.
+				if param == nil {
+					return func(attr attribute.Bag) (interface{}, error) {
+						return nil, nil
+					}, nil
+				}
+
+				// Instantiate a new builder for the instance.
+				builder, errp := newBuilder_adapter_template_kubernetesenv_Template(expb, param.(*adapter_template_kubernetesenv.InstanceParam))
+				if !errp.IsNil() {
+					return nil, errp.AsCompilationError(instanceName)
+				}
+
+				return func(attr attribute.Bag) (interface{}, error) {
+					// Use the instantiated builder (that this fn closes over) to construct an instance.
+					e, errp := builder.build(attr)
+					if !errp.IsNil() {
+						err := errp.AsEvaluationError(instanceName)
+						log.Error(err.Error())
+						return nil, err
+					}
+
+					e.Name = instanceName
+					return e, nil
+				}, nil
+			},
+
+			// CreateOutputExpressions creates a set of compiled expressions based on the supplied instance parameters.
+			//
+			// See template.CreateOutputExpressionsFn for more details.
+			CreateOutputExpressions: func(
+				instanceParam proto.Message,
+				finder expr.AttributeDescriptorFinder,
+				expb *compiled.ExpressionBuilder) (map[string]compiled.Expression, error) {
+				var err error
+				var expType istio_mixer_v1_config_descriptor.ValueType
+
+				// Convert the generic instanceParam to its specialized type.
+				param := instanceParam.(*adapter_template_kubernetesenv.InstanceParam)
+
+				// Create a mapping of expressions back to the attribute names.
+				expressions := make(map[string]compiled.Expression, len(param.AttributeBindings))
+
+				const fullOutName = "adapter_template_kubernetesenv.output."
+				for attrName, outExpr := range param.AttributeBindings {
+					attrInfo := finder.GetAttribute(attrName)
+					if attrInfo == nil {
+						log.Warnf("attribute not found when mapping outputs: attr='%s', expr='%s'", attrName, outExpr)
+						continue
+					}
+
+					ex := strings.Replace(outExpr, "$out.", fullOutName, -1)
+
+					if expressions[attrName], expType, err = expb.Compile(ex); err != nil {
+						return nil, err
+					}
+
+					if attrInfo.ValueType != expType {
+						log.Warnf("attribute type mismatch: attr='%s', attrType='%v', expr='%s', exprType='%v'", attrName, attrInfo.ValueType, outExpr, expType)
+						continue
+					}
+				}
+
+				return expressions, nil
+			},
 		},
 
 		servicecontrolreport.TemplateName: {
@@ -2958,6 +3156,167 @@ var (
 // Builders for all known message types.
 
 // builder struct for constructing an instance of Template.
+type builder_adapter_template_kubernetesenv_Template struct {
+
+	// builder for field source_uid: string.
+
+	bldSourceUid compiled.Expression
+
+	// builder for field source_ip: net.IP.
+
+	bldSourceIp compiled.Expression
+
+	// builder for field destination_uid: string.
+
+	bldDestinationUid compiled.Expression
+
+	// builder for field destination_ip: net.IP.
+
+	bldDestinationIp compiled.Expression
+
+	// builder for field origin_uid: string.
+
+	bldOriginUid compiled.Expression
+
+	// builder for field origin_ip: net.IP.
+
+	bldOriginIp compiled.Expression
+} // builder_adapter_template_kubernetesenv_Template
+
+// Instantiates and returns a new builder for Template, based on the provided instance parameter.
+func newBuilder_adapter_template_kubernetesenv_Template(
+	expb *compiled.ExpressionBuilder,
+	param *adapter_template_kubernetesenv.InstanceParam) (*builder_adapter_template_kubernetesenv_Template, template.ErrorPath) {
+
+	// If the parameter is nil. Simply return nil. The builder, then, will also return nil.
+	if param == nil {
+		return nil, template.ErrorPath{}
+	}
+
+	b := &builder_adapter_template_kubernetesenv_Template{}
+
+	var exp compiled.Expression
+	_ = exp
+	var err error
+	_ = err
+	var errp template.ErrorPath
+	_ = errp
+	var expType istio_mixer_v1_config_descriptor.ValueType
+	_ = expType
+
+	b.bldSourceUid, expType, err = expb.Compile(param.SourceUid)
+	if err != nil {
+		return nil, template.NewErrorPath("SourceUid", err)
+	}
+
+	if expType != istio_mixer_v1_config_descriptor.STRING {
+		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.SourceUid)
+		return nil, template.NewErrorPath("SourceUid", err)
+	}
+
+	b.bldSourceIp, expType, err = expb.Compile(param.SourceIp)
+	if err != nil {
+		return nil, template.NewErrorPath("SourceIp", err)
+	}
+
+	b.bldDestinationUid, expType, err = expb.Compile(param.DestinationUid)
+	if err != nil {
+		return nil, template.NewErrorPath("DestinationUid", err)
+	}
+
+	if expType != istio_mixer_v1_config_descriptor.STRING {
+		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.DestinationUid)
+		return nil, template.NewErrorPath("DestinationUid", err)
+	}
+
+	b.bldDestinationIp, expType, err = expb.Compile(param.DestinationIp)
+	if err != nil {
+		return nil, template.NewErrorPath("DestinationIp", err)
+	}
+
+	b.bldOriginUid, expType, err = expb.Compile(param.OriginUid)
+	if err != nil {
+		return nil, template.NewErrorPath("OriginUid", err)
+	}
+
+	if expType != istio_mixer_v1_config_descriptor.STRING {
+		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.OriginUid)
+		return nil, template.NewErrorPath("OriginUid", err)
+	}
+
+	b.bldOriginIp, expType, err = expb.Compile(param.OriginIp)
+	if err != nil {
+		return nil, template.NewErrorPath("OriginIp", err)
+	}
+
+	return b, template.ErrorPath{}
+}
+
+// build and return the instance, given a set of attributes.
+func (b *builder_adapter_template_kubernetesenv_Template) build(
+	attrs attribute.Bag) (*adapter_template_kubernetesenv.Instance, template.ErrorPath) {
+
+	if b == nil {
+		return nil, template.ErrorPath{}
+	}
+
+	var err error
+	_ = err
+	var errp template.ErrorPath
+	_ = errp
+	var vBool bool
+	_ = vBool
+	var vInt int64
+	_ = vInt
+	var vString string
+	_ = vString
+	var vDouble float64
+	_ = vDouble
+	var vIface interface{}
+	_ = vIface
+
+	r := &adapter_template_kubernetesenv.Instance{}
+
+	vString, err = b.bldSourceUid.EvaluateString(attrs)
+	if err != nil {
+		return nil, template.NewErrorPath("SourceUid", err)
+	}
+	r.SourceUid = vString
+
+	if vIface, err = b.bldSourceIp.Evaluate(attrs); err != nil {
+		return nil, template.NewErrorPath("SourceIp", err)
+	}
+
+	r.SourceIp = net.IP(vIface.([]uint8))
+
+	vString, err = b.bldDestinationUid.EvaluateString(attrs)
+	if err != nil {
+		return nil, template.NewErrorPath("DestinationUid", err)
+	}
+	r.DestinationUid = vString
+
+	if vIface, err = b.bldDestinationIp.Evaluate(attrs); err != nil {
+		return nil, template.NewErrorPath("DestinationIp", err)
+	}
+
+	r.DestinationIp = net.IP(vIface.([]uint8))
+
+	vString, err = b.bldOriginUid.EvaluateString(attrs)
+	if err != nil {
+		return nil, template.NewErrorPath("OriginUid", err)
+	}
+	r.OriginUid = vString
+
+	if vIface, err = b.bldOriginIp.Evaluate(attrs); err != nil {
+		return nil, template.NewErrorPath("OriginIp", err)
+	}
+
+	r.OriginIp = net.IP(vIface.([]uint8))
+
+	return r, template.ErrorPath{}
+}
+
+// builder struct for constructing an instance of Template.
 type builder_servicecontrolreport_Template struct {
 
 	// builder for field api_version: string.
@@ -4537,167 +4896,6 @@ func (b *builder_tracespan_Template) build(
 		r.SpanTags[k] = vIface
 
 	}
-
-	return r, template.ErrorPath{}
-}
-
-// builder struct for constructing an instance of Template.
-type builder_adapter_template_kubernetesenv_Template struct {
-
-	// builder for field source_uid: string.
-
-	bldSourceUid compiled.Expression
-
-	// builder for field source_ip: net.IP.
-
-	bldSourceIp compiled.Expression
-
-	// builder for field destination_uid: string.
-
-	bldDestinationUid compiled.Expression
-
-	// builder for field destination_ip: net.IP.
-
-	bldDestinationIp compiled.Expression
-
-	// builder for field origin_uid: string.
-
-	bldOriginUid compiled.Expression
-
-	// builder for field origin_ip: net.IP.
-
-	bldOriginIp compiled.Expression
-} // builder_adapter_template_kubernetesenv_Template
-
-// Instantiates and returns a new builder for Template, based on the provided instance parameter.
-func newBuilder_adapter_template_kubernetesenv_Template(
-	expb *compiled.ExpressionBuilder,
-	param *adapter_template_kubernetesenv.InstanceParam) (*builder_adapter_template_kubernetesenv_Template, template.ErrorPath) {
-
-	// If the parameter is nil. Simply return nil. The builder, then, will also return nil.
-	if param == nil {
-		return nil, template.ErrorPath{}
-	}
-
-	b := &builder_adapter_template_kubernetesenv_Template{}
-
-	var exp compiled.Expression
-	_ = exp
-	var err error
-	_ = err
-	var errp template.ErrorPath
-	_ = errp
-	var expType istio_mixer_v1_config_descriptor.ValueType
-	_ = expType
-
-	b.bldSourceUid, expType, err = expb.Compile(param.SourceUid)
-	if err != nil {
-		return nil, template.NewErrorPath("SourceUid", err)
-	}
-
-	if expType != istio_mixer_v1_config_descriptor.STRING {
-		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.SourceUid)
-		return nil, template.NewErrorPath("SourceUid", err)
-	}
-
-	b.bldSourceIp, expType, err = expb.Compile(param.SourceIp)
-	if err != nil {
-		return nil, template.NewErrorPath("SourceIp", err)
-	}
-
-	b.bldDestinationUid, expType, err = expb.Compile(param.DestinationUid)
-	if err != nil {
-		return nil, template.NewErrorPath("DestinationUid", err)
-	}
-
-	if expType != istio_mixer_v1_config_descriptor.STRING {
-		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.DestinationUid)
-		return nil, template.NewErrorPath("DestinationUid", err)
-	}
-
-	b.bldDestinationIp, expType, err = expb.Compile(param.DestinationIp)
-	if err != nil {
-		return nil, template.NewErrorPath("DestinationIp", err)
-	}
-
-	b.bldOriginUid, expType, err = expb.Compile(param.OriginUid)
-	if err != nil {
-		return nil, template.NewErrorPath("OriginUid", err)
-	}
-
-	if expType != istio_mixer_v1_config_descriptor.STRING {
-		err = fmt.Errorf("instance field type mismatch: expected='%v', actual='%v', expression='%s'", istio_mixer_v1_config_descriptor.STRING, expType, param.OriginUid)
-		return nil, template.NewErrorPath("OriginUid", err)
-	}
-
-	b.bldOriginIp, expType, err = expb.Compile(param.OriginIp)
-	if err != nil {
-		return nil, template.NewErrorPath("OriginIp", err)
-	}
-
-	return b, template.ErrorPath{}
-}
-
-// build and return the instance, given a set of attributes.
-func (b *builder_adapter_template_kubernetesenv_Template) build(
-	attrs attribute.Bag) (*adapter_template_kubernetesenv.Instance, template.ErrorPath) {
-
-	if b == nil {
-		return nil, template.ErrorPath{}
-	}
-
-	var err error
-	_ = err
-	var errp template.ErrorPath
-	_ = errp
-	var vBool bool
-	_ = vBool
-	var vInt int64
-	_ = vInt
-	var vString string
-	_ = vString
-	var vDouble float64
-	_ = vDouble
-	var vIface interface{}
-	_ = vIface
-
-	r := &adapter_template_kubernetesenv.Instance{}
-
-	vString, err = b.bldSourceUid.EvaluateString(attrs)
-	if err != nil {
-		return nil, template.NewErrorPath("SourceUid", err)
-	}
-	r.SourceUid = vString
-
-	if vIface, err = b.bldSourceIp.Evaluate(attrs); err != nil {
-		return nil, template.NewErrorPath("SourceIp", err)
-	}
-
-	r.SourceIp = net.IP(vIface.([]uint8))
-
-	vString, err = b.bldDestinationUid.EvaluateString(attrs)
-	if err != nil {
-		return nil, template.NewErrorPath("DestinationUid", err)
-	}
-	r.DestinationUid = vString
-
-	if vIface, err = b.bldDestinationIp.Evaluate(attrs); err != nil {
-		return nil, template.NewErrorPath("DestinationIp", err)
-	}
-
-	r.DestinationIp = net.IP(vIface.([]uint8))
-
-	vString, err = b.bldOriginUid.EvaluateString(attrs)
-	if err != nil {
-		return nil, template.NewErrorPath("OriginUid", err)
-	}
-	r.OriginUid = vString
-
-	if vIface, err = b.bldOriginIp.Evaluate(attrs); err != nil {
-		return nil, template.NewErrorPath("OriginIp", err)
-	}
-
-	r.OriginIp = net.IP(vIface.([]uint8))
 
 	return r, template.ErrorPath{}
 }

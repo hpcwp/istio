@@ -11,5 +11,5 @@ message Params {
     // Path of the file to save the information about runtime requests.
     string file_path = 1;
     // Url to Elsd
-    string els_url = 2;
+    string elsd_url = 2;
 }

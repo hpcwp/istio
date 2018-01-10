@@ -23,7 +23,7 @@ metadata:
  namespace: istio-system
 spec:
  file_path: "out.txt"
- elsd: "localhost:8082"
+ elsd_url: "localhost:8082"
 ---
 # rule to dispatch to your handler
 apiVersion: "config.istio.io/v1alpha2"

@@ -42,8 +42,9 @@ func (b *builder) Build(ctx context.Context, env adapter.Env) (adapter.Handler, 
 	var err error
 	var file *os.File
 	file, err = os.Create(b.adpCfg.FilePath)
+	url := b.adpCfg.ElsdUrl
 
-	return &handler{f: file, metricTypes: b.metricTypes, env: env}, err
+	return &handler{f: file, elsdUrl: url, metricTypes: b.metricTypes, env: env}, err
 }
 
 // adapter.HandlerBuilder#SetAdapterConfig

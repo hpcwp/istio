@@ -7,14 +7,13 @@ This is build following the [walkthrough guide](https://github.com/istio/istio/b
 Set the location of the mixer
 
 ```shell
-MIXER_REPO = MIXER_REPO={$GOPATH}/src/istio.io/istio/mixer
+MIXER_REPO=$GOPATH/src/istio.io/istio/mixer
 ```
-
 
 Set the location of ELSd
 
 ```shell
-ELSD_REPO = ={$GOPATH}/src/github.com/istio/mixer
+ELSD_REPO=$GOPATH/src/github.com/istio/mixer
 ```
 
 ## Build the mixer server 
@@ -39,7 +38,7 @@ pusdh $ELSD_REPO && docker-compose up
 Start the Mixer
 
 ```shell
-pushd $MIXER_REPO && mixs server --configStore2URL=fs://$MIXER_REPO/adapter/elsd/operatorconfig
+pushd $MIXER_REPO && go install ./... && mixs server --configStore2URL=fs://$MIXER_REPO/adapter/elsd/operatorconfig
 ```
 
 Use the Mixer client to report 
