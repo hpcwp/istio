@@ -689,11 +689,7 @@ var (
 				}
 
 				// Instantiate a new builder for the instance.
-<<<<<<< HEAD
-				builder, errp := newBuilder_adapter_template_kubernetesenv_Template(expb, param.(*adapter_template_kubernetesenv.InstanceParam))
-=======
 				builder, errp := newBuilder_adapter_template_kubernetes_Template(expb, param.(*adapter_template_kubernetes.InstanceParam))
->>>>>>> master
 				if !errp.IsNil() {
 					return nil, errp.AsCompilationError(instanceName)
 				}
@@ -723,20 +719,12 @@ var (
 				var expType istio_mixer_v1_config_descriptor.ValueType
 
 				// Convert the generic instanceParam to its specialized type.
-<<<<<<< HEAD
-				param := instanceParam.(*adapter_template_kubernetesenv.InstanceParam)
-=======
 				param := instanceParam.(*adapter_template_kubernetes.InstanceParam)
->>>>>>> master
 
 				// Create a mapping of expressions back to the attribute names.
 				expressions := make(map[string]compiled.Expression, len(param.AttributeBindings))
 
-<<<<<<< HEAD
-				const fullOutName = "adapter_template_kubernetesenv.output."
-=======
 				const fullOutName = "adapter_template_kubernetes.output."
->>>>>>> master
 				for attrName, outExpr := range param.AttributeBindings {
 					attrInfo := finder.GetAttribute(attrName)
 					if attrInfo == nil {
@@ -3168,11 +3156,7 @@ var (
 // Builders for all known message types.
 
 // builder struct for constructing an instance of Template.
-<<<<<<< HEAD
-type builder_adapter_template_kubernetesenv_Template struct {
-=======
 type builder_adapter_template_kubernetes_Template struct {
->>>>>>> master
 
 	// builder for field source_uid: string.
 
@@ -3197,32 +3181,19 @@ type builder_adapter_template_kubernetes_Template struct {
 	// builder for field origin_ip: net.IP.
 
 	bldOriginIp compiled.Expression
-<<<<<<< HEAD
-} // builder_adapter_template_kubernetesenv_Template
-
-// Instantiates and returns a new builder for Template, based on the provided instance parameter.
-func newBuilder_adapter_template_kubernetesenv_Template(
-	expb *compiled.ExpressionBuilder,
-	param *adapter_template_kubernetesenv.InstanceParam) (*builder_adapter_template_kubernetesenv_Template, template.ErrorPath) {
-=======
 } // builder_adapter_template_kubernetes_Template
 
 // Instantiates and returns a new builder for Template, based on the provided instance parameter.
 func newBuilder_adapter_template_kubernetes_Template(
 	expb *compiled.ExpressionBuilder,
 	param *adapter_template_kubernetes.InstanceParam) (*builder_adapter_template_kubernetes_Template, template.ErrorPath) {
->>>>>>> master
 
 	// If the parameter is nil. Simply return nil. The builder, then, will also return nil.
 	if param == nil {
 		return nil, template.ErrorPath{}
 	}
 
-<<<<<<< HEAD
-	b := &builder_adapter_template_kubernetesenv_Template{}
-=======
 	b := &builder_adapter_template_kubernetes_Template{}
->>>>>>> master
 
 	var exp compiled.Expression
 	_ = exp
@@ -3282,13 +3253,8 @@ func newBuilder_adapter_template_kubernetes_Template(
 }
 
 // build and return the instance, given a set of attributes.
-<<<<<<< HEAD
-func (b *builder_adapter_template_kubernetesenv_Template) build(
-	attrs attribute.Bag) (*adapter_template_kubernetesenv.Instance, template.ErrorPath) {
-=======
 func (b *builder_adapter_template_kubernetes_Template) build(
 	attrs attribute.Bag) (*adapter_template_kubernetes.Instance, template.ErrorPath) {
->>>>>>> master
 
 	if b == nil {
 		return nil, template.ErrorPath{}
@@ -3309,11 +3275,7 @@ func (b *builder_adapter_template_kubernetes_Template) build(
 	var vIface interface{}
 	_ = vIface
 
-<<<<<<< HEAD
-	r := &adapter_template_kubernetesenv.Instance{}
-=======
 	r := &adapter_template_kubernetes.Instance{}
->>>>>>> master
 
 	vString, err = b.bldSourceUid.EvaluateString(attrs)
 	if err != nil {
