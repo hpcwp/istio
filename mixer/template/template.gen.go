@@ -25,7 +25,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 
-	"istio.io/api/mixer/v1/config/descriptor"
+	istio_mixer_v1_config_descriptor "istio.io/api/mixer/v1/config/descriptor"
 	adptTmpl "istio.io/api/mixer/v1/template"
 	"istio.io/istio/mixer/pkg/adapter"
 	"istio.io/istio/mixer/pkg/attribute"
@@ -114,29 +114,29 @@ func (w *wrapperAttr) DebugString() string {
 var (
 	SupportedTmplInfo = map[string]template.Info{
 
-		adapter_template_kubernetesenv.TemplateName: {
-			Name:               adapter_template_kubernetesenv.TemplateName,
-			Impl:               "adapter.template.kubernetesenv",
-			CtrCfg:             &adapter_template_kubernetesenv.InstanceParam{},
+		adapter_template_kubernetes.TemplateName: {
+			Name:               adapter_template_kubernetes.TemplateName,
+			Impl:               "adapter.template.kubernetes",
+			CtrCfg:             &adapter_template_kubernetes.InstanceParam{},
 			Variety:            adptTmpl.TEMPLATE_VARIETY_ATTRIBUTE_GENERATOR,
-			BldrInterfaceName:  adapter_template_kubernetesenv.TemplateName + "." + "HandlerBuilder",
-			HndlrInterfaceName: adapter_template_kubernetesenv.TemplateName + "." + "Handler",
+			BldrInterfaceName:  adapter_template_kubernetes.TemplateName + "." + "HandlerBuilder",
+			HndlrInterfaceName: adapter_template_kubernetes.TemplateName + "." + "Handler",
 			BuilderSupportsTemplate: func(hndlrBuilder adapter.HandlerBuilder) bool {
-				_, ok := hndlrBuilder.(adapter_template_kubernetesenv.HandlerBuilder)
+				_, ok := hndlrBuilder.(adapter_template_kubernetes.HandlerBuilder)
 				return ok
 			},
 			HandlerSupportsTemplate: func(hndlr adapter.Handler) bool {
-				_, ok := hndlr.(adapter_template_kubernetesenv.Handler)
+				_, ok := hndlr.(adapter_template_kubernetes.Handler)
 				return ok
 			},
 			InferType: func(cp proto.Message, tEvalFn template.TypeEvalFn) (proto.Message, error) {
 
-				var BuildTemplate func(param *adapter_template_kubernetesenv.InstanceParam,
+				var BuildTemplate func(param *adapter_template_kubernetes.InstanceParam,
 					path string) (proto.Message, error)
 
 				_ = BuildTemplate
 
-				BuildTemplate = func(param *adapter_template_kubernetesenv.InstanceParam,
+				BuildTemplate = func(param *adapter_template_kubernetes.InstanceParam,
 					path string) (proto.Message, error) {
 
 					if param == nil {
@@ -209,9 +209,9 @@ var (
 
 				}
 
-				instParam := cp.(*adapter_template_kubernetesenv.InstanceParam)
+				instParam := cp.(*adapter_template_kubernetes.InstanceParam)
 
-				const fullOutName = "adapter_template_kubernetesenv.output."
+				const fullOutName = "adapter_template_kubernetes.output."
 				for attr, exp := range instParam.AttributeBindings {
 					expr := strings.Replace(exp, "$out.", fullOutName, -1)
 					t1, err := tEvalFn(expr)
@@ -236,87 +236,87 @@ var (
 				{
 					Attributes: map[string]*istio_mixer_v1_config.AttributeManifest_AttributeInfo{
 
-						"adapter_template_kubernetesenv.output.source_pod_ip": {
+						"adapter_template_kubernetes.output.source_pod_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 
-						"adapter_template_kubernetesenv.output.source_pod_name": {
+						"adapter_template_kubernetes.output.source_pod_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.source_labels": {
+						"adapter_template_kubernetes.output.source_labels": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING_MAP,
 						},
 
-						"adapter_template_kubernetesenv.output.source_namespace": {
+						"adapter_template_kubernetes.output.source_namespace": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.source_service": {
+						"adapter_template_kubernetes.output.source_service": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.source_service_account_name": {
+						"adapter_template_kubernetes.output.source_service_account_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.source_host_ip": {
+						"adapter_template_kubernetes.output.source_host_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_pod_ip": {
+						"adapter_template_kubernetes.output.destination_pod_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_pod_name": {
+						"adapter_template_kubernetes.output.destination_pod_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_labels": {
+						"adapter_template_kubernetes.output.destination_labels": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING_MAP,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_namespace": {
+						"adapter_template_kubernetes.output.destination_namespace": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_service": {
+						"adapter_template_kubernetes.output.destination_service": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_service_account_name": {
+						"adapter_template_kubernetes.output.destination_service_account_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.destination_host_ip": {
+						"adapter_template_kubernetes.output.destination_host_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_pod_ip": {
+						"adapter_template_kubernetes.output.origin_pod_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_pod_name": {
+						"adapter_template_kubernetes.output.origin_pod_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_labels": {
+						"adapter_template_kubernetes.output.origin_labels": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING_MAP,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_namespace": {
+						"adapter_template_kubernetes.output.origin_namespace": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_service": {
+						"adapter_template_kubernetes.output.origin_service": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_service_account_name": {
+						"adapter_template_kubernetes.output.origin_service_account_name": {
 							ValueType: istio_mixer_v1_config_descriptor.STRING,
 						},
 
-						"adapter_template_kubernetesenv.output.origin_host_ip": {
+						"adapter_template_kubernetes.output.origin_host_ip": {
 							ValueType: istio_mixer_v1_config_descriptor.IP_ADDRESS,
 						},
 					},
@@ -327,13 +327,13 @@ var (
 				mapper expr.Evaluator, handler adapter.Handler) (*attribute.MutableBag, error) {
 
 				var BuildTemplate func(instName string,
-					param *adapter_template_kubernetesenv.InstanceParam, path string) (
-					*adapter_template_kubernetesenv.Instance, error)
+					param *adapter_template_kubernetes.InstanceParam, path string) (
+					*adapter_template_kubernetes.Instance, error)
 				_ = BuildTemplate
 
 				BuildTemplate = func(instName string,
-					param *adapter_template_kubernetesenv.InstanceParam, path string) (
-					*adapter_template_kubernetesenv.Instance, error) {
+					param *adapter_template_kubernetes.InstanceParam, path string) (
+					*adapter_template_kubernetes.Instance, error) {
 					if param == nil {
 						return nil, nil
 					}
@@ -389,7 +389,7 @@ var (
 					}
 
 					_ = param
-					return &adapter_template_kubernetesenv.Instance{
+					return &adapter_template_kubernetes.Instance{
 
 						Name: instName,
 
@@ -407,19 +407,19 @@ var (
 					}, nil
 				}
 
-				instParam := inst.(*adapter_template_kubernetesenv.InstanceParam)
+				instParam := inst.(*adapter_template_kubernetes.InstanceParam)
 				instance, err := BuildTemplate(instName, instParam, "")
 				if err != nil {
 					return nil, err
 
 				}
 
-				out, err := handler.(adapter_template_kubernetesenv.Handler).GenerateKubernetesEnvAttributes(ctx, instance)
+				out, err := handler.(adapter_template_kubernetes.Handler).GenerateKubernetesAttributes(ctx, instance)
 				if err != nil {
 					return nil, err
 				}
 				abag := attrs
-				const fullOutName = "adapter_template_kubernetesenv.output."
+				const fullOutName = "adapter_template_kubernetes.output."
 				if out == nil {
 					log.Debugf("Preprocess adapter returned nil output for instance name '%s'", instName)
 				} else {
@@ -556,17 +556,18 @@ var (
 				mapper template.OutputMapperFn) (*attribute.MutableBag, error) {
 
 				// Convert the instance from the generic interface{}, to their specialized type.
-				instance := inst.(*adapter_template_kubernetesenv.Instance)
+				instance := inst.(*adapter_template_kubernetes.Instance)
 
 				// Invoke the handler.
-				out, err := handler.(adapter_template_kubernetesenv.Handler).GenerateKubernetesEnvAttributes(ctx, instance)
+				out, err := handler.(adapter_template_kubernetes.Handler).GenerateKubernetesAttributes(ctx, instance)
 				if err != nil {
 					return nil, err
 				}
 
 				// Construct a wrapper bag around the returned output message and pass it to the output mapper
 				// to map $out values back to the destination attributes in the ambient context.
-				const fullOutName = "adapter_template_kubernetesenv.output."
+
+				const fullOutName = "adapter_template_kubernetes.output."
 				outBag := newWrapperAttrBag(
 					func(name string) (value interface{}, found bool) {
 						field := strings.TrimPrefix(name, fullOutName)
@@ -689,7 +690,11 @@ var (
 				}
 
 				// Instantiate a new builder for the instance.
+<<<<<<< HEAD
 				builder, errp := newBuilder_adapter_template_kubernetesenv_Template(expb, param.(*adapter_template_kubernetesenv.InstanceParam))
+=======
+				builder, errp := newBuilder_adapter_template_kubernetes_Template(expb, param.(*adapter_template_kubernetes.InstanceParam))
+>>>>>>> master
 				if !errp.IsNil() {
 					return nil, errp.AsCompilationError(instanceName)
 				}
@@ -719,12 +724,20 @@ var (
 				var expType istio_mixer_v1_config_descriptor.ValueType
 
 				// Convert the generic instanceParam to its specialized type.
+<<<<<<< HEAD
 				param := instanceParam.(*adapter_template_kubernetesenv.InstanceParam)
+=======
+				param := instanceParam.(*adapter_template_kubernetes.InstanceParam)
+>>>>>>> master
 
 				// Create a mapping of expressions back to the attribute names.
 				expressions := make(map[string]compiled.Expression, len(param.AttributeBindings))
 
+<<<<<<< HEAD
 				const fullOutName = "adapter_template_kubernetesenv.output."
+=======
+				const fullOutName = "adapter_template_kubernetes.output."
+>>>>>>> master
 				for attrName, outExpr := range param.AttributeBindings {
 					attrInfo := finder.GetAttribute(attrName)
 					if attrInfo == nil {
@@ -3156,7 +3169,11 @@ var (
 // Builders for all known message types.
 
 // builder struct for constructing an instance of Template.
+<<<<<<< HEAD
 type builder_adapter_template_kubernetesenv_Template struct {
+=======
+type builder_adapter_template_kubernetes_Template struct {
+>>>>>>> master
 
 	// builder for field source_uid: string.
 
@@ -3181,19 +3198,32 @@ type builder_adapter_template_kubernetesenv_Template struct {
 	// builder for field origin_ip: net.IP.
 
 	bldOriginIp compiled.Expression
+<<<<<<< HEAD
 } // builder_adapter_template_kubernetesenv_Template
 
 // Instantiates and returns a new builder for Template, based on the provided instance parameter.
 func newBuilder_adapter_template_kubernetesenv_Template(
 	expb *compiled.ExpressionBuilder,
 	param *adapter_template_kubernetesenv.InstanceParam) (*builder_adapter_template_kubernetesenv_Template, template.ErrorPath) {
+=======
+} // builder_adapter_template_kubernetes_Template
+
+// Instantiates and returns a new builder for Template, based on the provided instance parameter.
+func newBuilder_adapter_template_kubernetes_Template(
+	expb *compiled.ExpressionBuilder,
+	param *adapter_template_kubernetes.InstanceParam) (*builder_adapter_template_kubernetes_Template, template.ErrorPath) {
+>>>>>>> master
 
 	// If the parameter is nil. Simply return nil. The builder, then, will also return nil.
 	if param == nil {
 		return nil, template.ErrorPath{}
 	}
 
+<<<<<<< HEAD
 	b := &builder_adapter_template_kubernetesenv_Template{}
+=======
+	b := &builder_adapter_template_kubernetes_Template{}
+>>>>>>> master
 
 	var exp compiled.Expression
 	_ = exp
@@ -3253,8 +3283,13 @@ func newBuilder_adapter_template_kubernetesenv_Template(
 }
 
 // build and return the instance, given a set of attributes.
+<<<<<<< HEAD
 func (b *builder_adapter_template_kubernetesenv_Template) build(
 	attrs attribute.Bag) (*adapter_template_kubernetesenv.Instance, template.ErrorPath) {
+=======
+func (b *builder_adapter_template_kubernetes_Template) build(
+	attrs attribute.Bag) (*adapter_template_kubernetes.Instance, template.ErrorPath) {
+>>>>>>> master
 
 	if b == nil {
 		return nil, template.ErrorPath{}
@@ -3275,7 +3310,11 @@ func (b *builder_adapter_template_kubernetesenv_Template) build(
 	var vIface interface{}
 	_ = vIface
 
+<<<<<<< HEAD
 	r := &adapter_template_kubernetesenv.Instance{}
+=======
+	r := &adapter_template_kubernetes.Instance{}
+>>>>>>> master
 
 	vString, err = b.bldSourceUid.EvaluateString(attrs)
 	if err != nil {
