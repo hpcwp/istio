@@ -331,7 +331,7 @@
   branch = "master"
   name = "github.com/google/go-github"
   packages = ["github"]
-  revision = "922ceac0585d40f97d283d921f872fc50480e06e"
+  revision = "7cbc1505685d6ce57a82b50ee4968ee41dec5b2b"
 
 [[projects]]
   branch = "master"
@@ -491,6 +491,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/hpcwp/elsd"
+  packages = ["pkg/api"]
+  revision = "72f85718264bf0b6107b28cfad5ec55f00f4da76"
+
+[[projects]]
+  branch = "master"
   name = "github.com/huandu/xstrings"
   packages = ["."]
   revision = "37469d0c81a7910b49d64a0d308ded4823e90937"
@@ -519,10 +525,10 @@
   version = "1.0.4"
 
 [[projects]]
-  branch = "master"
   name = "github.com/juju/ratelimit"
   packages = ["."]
   revision = "59fac5042749a5afb9af70e813da1dd5474f0167"
+  version = "1.0.1"
 
 [[projects]]
   branch = "master"
@@ -794,7 +800,7 @@
     "scrypt",
     "ssh/terminal"
   ]
-  revision = "a6600008915114d9c087fad9f03d75087b1a74df"
+  revision = "31469a2049ca68f6ce80281568c2d81dc700f104"
 
 [[projects]]
   branch = "master"
@@ -839,7 +845,7 @@
     "unix",
     "windows"
   ]
-  revision = "2c42eef0765b9837fbdab12011af7830f55f88f0"
+  revision = "af50095a40f9041b3b38960738837185c26e9419"
 
 [[projects]]
   branch = "master"
@@ -908,7 +914,7 @@
     "transport/grpc",
     "transport/http"
   ]
-  revision = "85dbeadc18ffa798f2716d8c48a2c1153470743a"
+  revision = "bc96e9251952e80de14b88579b2e2e7d022ca939"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -1243,11 +1249,12 @@
     "pkg/ignore",
     "pkg/proto/hapi/chart",
     "pkg/proto/hapi/version",
+    "pkg/sympath",
     "pkg/timeconv",
     "pkg/version"
   ]
-  revision = "8478fb4fc723885b155c924d1c8c410b7a9444e6"
-  version = "v2.7.2"
+  revision = "14af25f1de6832228539259b821949d20069a222"
+  version = "v2.8.0"
 
 [[projects]]
   name = "k8s.io/ingress"
@@ -1276,6 +1283,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a29715adf037af9b99c360f7e3a01146a57daba018818b2b11b69ac6c7fa4a47"
+  inputs-digest = "691c8c2ff0ab9f822236a4ddc1971773b2f96d828aed730b5d4db66fff8c3502"
   solver-name = "gps-cdcl"
   solver-version = 1
