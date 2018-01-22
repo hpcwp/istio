@@ -566,7 +566,6 @@ var (
 
 				// Construct a wrapper bag around the returned output message and pass it to the output mapper
 				// to map $out values back to the destination attributes in the ambient context.
-
 				const fullOutName = "adapter_template_kubernetes.output."
 				outBag := newWrapperAttrBag(
 					func(name string) (value interface{}, found bool) {
