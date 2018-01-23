@@ -27,8 +27,8 @@ import (
 
 	"istio.io/istio/pilot/platform/kube"
 	"istio.io/istio/pilot/platform/kube/inject"
-	"istio.io/istio/pilot/tools/version"
 	"istio.io/istio/pkg/log"
+	"istio.io/istio/pkg/version"
 )
 
 var (
@@ -130,7 +130,7 @@ kubectl get deployment -o yaml | istioctl kube-inject -f - | kubectl apply -f -
 			}
 
 			if versionStr == "" {
-				versionStr = version.Line()
+				versionStr = version.Info.String()
 			}
 
 			_, client, err := kube.CreateInterface(kubeconfig)
@@ -169,7 +169,7 @@ kubectl get deployment -o yaml | istioctl kube-inject -f - | kubectl apply -f -
 func init() {
 	rootCmd.AddCommand(injectCmd)
 
-	injectCmd.PersistentFlags().StringVar(&hub, "hub", inject.DefaultHub, "Docker hub")
+	injectCmd.PersistentFlags().StringVar(&hub, "hub", version.Info.DockerHub, "Docker hub")
 	injectCmd.PersistentFlags().StringVar(&tag, "tag", version.Info.Version, "Docker tag")
 
 	injectCmd.PersistentFlags().StringVarP(&inFilename, "filename", "f",
