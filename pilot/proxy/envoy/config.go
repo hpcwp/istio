@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Based on https://github.com/kameshsampath/istio-keycloak-demo
 package envoy
 
 import (
@@ -128,6 +129,13 @@ func buildConfig(config meshconfig.ProxyConfig, pilotSAN []string) *Config {
 			buildCluster(config.ZipkinAddress, ZipkinCollectorCluster, config.ConnectTimeout))
 		out.Tracing = buildZipkinTracing()
 	}
+
+	//POC - JWT-AUTH
+	out.ClusterManager.Clusters = append(out.ClusterManager.Clusters,
+		buildCluster("hpcorp-cwp-dev.apigee.net/hpid-oauth-meme-apiproxy",
+			"https://hpcorp-cwp-dev.apigee.net/hpid-oauth-meme-apiproxy",
+			config.ConnectTimeout))
+	//END POC - JWT-AUTH
 
 	return out
 }
@@ -335,11 +343,47 @@ func buildHTTPListener(mesh *meshconfig.MeshConfig, node model.Node, instances [
 		Config: FilterRouterConfig{},
 	})
 
-	filter := HTTPFilter{
-		Name:   CORSFilter,
-		Config: CORSFilterConfig{},
+	// filter := HTTPFilter{
+	// 	Name:   CORSFilter,
+	// 	Config: CORSFilterConfig{},
+	// }
+
+	// filters = append([]HTTPFilter{filter}, filters...)
+
+	// START - PoC Change for JWT-AUTH
+	// add this filter only for ingress on port 8080 which is default app port
+	// TODO better logic to be here , with config like audiences, apigee realm, url etc., coming via mesh config
+	if port == 8080 && direction == "ingress" {
+		log.Infof("POC - JWT-AUTH via apigee", port)
+		j := `{
+		            "type": "decoder",
+		            "name": "jwt-auth",
+		            "config": {
+		                "issuers": [
+		                {
+		                    "name": "https://hpcorp-cwp-dev.apigee.net",
+		                    "audiences": ["meme"], 
+		                    "pubkey": {
+		                        "type": "jwks",
+		                        "uri": "https://hpcorp-cwp-dev.apigee.net/hpid-oauth-meme-apiproxy/v1/jwks",
+		                        "cluster": "https://hpcorp-cwp-dev.apigee.net/hpid-oauth-meme-apiproxy"
+		                    }
+		                }
+		                ]
+		            }
+		        }`
+
+		jwtAuthFilter := HTTPFilter{}
+
+		err := json.Unmarshal([]byte(j), &jwtAuthFilter)
+
+		if err == nil {
+			log.Infof("Adding JWT-AUTH next to mixer")
+			filters = append([]HTTPFilter{jwtAuthFilter}, filters...)
+		} else {
+			log.Errorf("Error applying JWT Filter %s", err)
+		}
 	}
-	filters = append([]HTTPFilter{filter}, filters...)
 
 	if mesh.MixerAddress != "" {
 		mixerConfig := mixerHTTPRouteConfig(mesh, node, instances, outboundListener, store)
