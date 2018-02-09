@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	rpc "istio.io/gogo-genproto/googleapis/google/rpc"
-	"istio.io/istio/security/pkg/pki/ca"
+	"istio.io/istio/security/pkg/pki/util"
 	"istio.io/istio/security/pkg/platform"
 	mockpc "istio.io/istio/security/pkg/platform/mock"
 	pb "istio.io/istio/security/proto"
@@ -37,16 +37,16 @@ type FakeIstioCAGrpcServer struct {
 	Status          *rpc.Status
 	SignedCertChain []byte
 
-	response *pb.Response
+	response *pb.CsrResponse
 	errorMsg string
 }
 
-func (s *FakeIstioCAGrpcServer) SetResponseAndError(response *pb.Response, errorMsg string) {
+func (s *FakeIstioCAGrpcServer) SetResponseAndError(response *pb.CsrResponse, errorMsg string) {
 	s.response = response
 	s.errorMsg = errorMsg
 }
 
-func (s *FakeIstioCAGrpcServer) HandleCSR(ctx context.Context, req *pb.Request) (*pb.Response, error) {
+func (s *FakeIstioCAGrpcServer) HandleCSR(ctx context.Context, req *pb.CsrRequest) (*pb.CsrResponse, error) {
 	if len(s.errorMsg) > 0 {
 		return nil, fmt.Errorf(s.errorMsg)
 	}
@@ -77,7 +77,7 @@ func TestSendCSRAgainstLocalInstance(t *testing.T) {
 	// The goroutine starting the server may not be ready, results in flakiness.
 	time.Sleep(1 * time.Second)
 
-	defaultServerResponse := pb.Response{
+	defaultServerResponse := pb.CsrResponse{
 		IsApproved:      true,
 		Status:          &rpc.Status{Code: int32(rpc.OK), Message: "OK"},
 		SignedCertChain: nil,
@@ -86,7 +86,6 @@ func TestSendCSRAgainstLocalInstance(t *testing.T) {
 	testCases := map[string]struct {
 		caAddress   string
 		pc          platform.Client
-		respErr     string
 		expectedErr string
 	}{
 		"IstioCAAddress is empty": {
@@ -126,7 +125,7 @@ func TestSendCSRAgainstLocalInstance(t *testing.T) {
 	}
 
 	for id, c := range testCases {
-		csr, _, err := ca.GenCSR(ca.CertOptions{
+		csr, _, err := util.GenCSR(util.CertOptions{
 			Host:       "service1",
 			Org:        "orgA",
 			RSAKeySize: 512,
@@ -140,7 +139,7 @@ func TestSendCSRAgainstLocalInstance(t *testing.T) {
 			t.Errorf("Error getting credential (%v)", err)
 		}
 
-		req := &pb.Request{
+		req := &pb.CsrRequest{
 			CsrPem:              csr,
 			NodeAgentCredential: cred,
 			CredentialType:      c.pc.GetCredentialType(),

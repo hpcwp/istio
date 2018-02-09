@@ -22,6 +22,7 @@ import (
 	_ "github.com/golang/glog"
 
 	"istio.io/istio/pilot/pkg/kube/inject"
+	"istio.io/istio/pilot/pkg/model"
 	"istio.io/istio/pilot/test/util"
 	"istio.io/istio/pkg/log"
 )
@@ -84,14 +85,17 @@ func (a *accessLogs) check(infra *infra) error {
 				case "ingress":
 					ns = infra.IstioNamespace
 				}
+				util.CopyPodFiles(container, pod, ns, model.ConfigPathDir, infra.coreFilesDir+"/"+pod+"."+ns)
 				logs := util.FetchLogs(client, pod, ns, container)
 
 				if strings.Contains(logs, "segmentation fault") {
-					return fmt.Errorf("segmentation fault %s", pod)
+					util.CopyPodFiles(container, pod, ns, model.ConfigPathDir, infra.coreFilesDir+"/"+pod+"."+ns)
+					return fmt.Errorf("segmentation fault %s log: %s", pod, logs)
 				}
 
 				if strings.Contains(logs, "assert failure") {
-					return fmt.Errorf("assert failure in %s", pod)
+					util.CopyPodFiles(container, pod, ns, model.ConfigPathDir, infra.coreFilesDir+"/"+pod+"."+ns)
+					return fmt.Errorf("assert failure in %s log: %s", pod, logs)
 				}
 
 				// find all ids and counts
@@ -104,6 +108,7 @@ func (a *accessLogs) check(infra *infra) error {
 					got := strings.Count(logs, id)
 					if got < want {
 						log.Errorf("Got %d for %s in logs of %s, want %d", got, id, pod, want)
+						log.Errorf("Log: %s", logs)
 						return errAgain
 					}
 				}
