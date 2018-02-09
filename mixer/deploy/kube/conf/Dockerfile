@@ -2,8 +2,8 @@
 # imports dashboard /grafana-dashboard.json from DASHBOARD_URL
 from grafana/grafana:4.1.2
 
-RUN apt-get update
-RUN apt-get install -y curl
+#RUN apt-get update
+#RUN apt-get install -y curl
 
 # allow anonymous access
 ENV GF_AUTH_DISABLE_LOGIN_FORM=true
