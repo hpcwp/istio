@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: servicegraph
-        image: r.jdkr.io/galo/servicegraph:galo
+        image: r.jdkr.io/galo/servicegraph:galo-0.5
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 8088
