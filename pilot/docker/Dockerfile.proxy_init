@@ -1,4 +1,11 @@
 FROM ubuntu:xenial
+
+#Setup proxy - remove this section if you are outside the HP Network
+#------------------------------------------------------------
+ENV http_proxy http://web-proxy.corp.hp.com:8088
+ENV https_proxy http://web-proxy.corp.hp.com:8088
+#------------------------------------------------------------
+
 RUN apt-get update && apt-get install -y \
     iptables \
  && rm -rf /var/lib/apt/lists/*

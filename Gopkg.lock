@@ -554,12 +554,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/hpcwp/elsd"
-  packages = ["pkg/api"]
-  revision = "72f85718264bf0b6107b28cfad5ec55f00f4da76"
-
-[[projects]]
-  branch = "master"
   name = "github.com/huandu/xstrings"
   packages = ["."]
   revision = "2bf18b218c51864a87384c06996e40ff9dcff8e1"
