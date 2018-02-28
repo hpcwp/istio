@@ -16,8 +16,6 @@ package v1
 
 import (
 	"fmt"
-	// TODO(nmittler): Remove this
-	_ "github.com/golang/glog"
 
 	meshconfig "istio.io/api/mesh/v1alpha1"
 	routingv2 "istio.io/api/routing/v1alpha2"
@@ -126,6 +124,12 @@ func buildExternalServiceCluster(mesh *meshconfig.MeshConfig,
 			url := fmt.Sprintf("tcp://%s:%d", endpoint.Address, port.Port)
 			hosts = append(hosts, Host{URL: url})
 		}
+	}
+
+	// Use host address if discovery type DNS and no endpoints are provided
+	if discovery == routingv2.ExternalService_DNS && len(endpoints) == 0 {
+		url := fmt.Sprintf("tcp://%s:%d", address, port.Port)
+		hosts = append(hosts, Host{URL: url})
 	}
 
 	var clusterType, lbType string
