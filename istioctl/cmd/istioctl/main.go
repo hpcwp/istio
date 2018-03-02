@@ -40,8 +40,8 @@ import (
 	"github.com/spf13/cobra/doc"
 	"k8s.io/client-go/util/homedir"
 
+	"istio.io/istio/istioctl/cmd/istioctl/gendeployment"
 	"istio.io/istio/pilot/cmd"
-	"istio.io/istio/pilot/cmd/istioctl/gendeployment"
 	"istio.io/istio/pilot/pkg/config/kube/crd"
 	"istio.io/istio/pilot/pkg/model"
 	"istio.io/istio/pilot/pkg/serviceregistry/kube"
@@ -70,7 +70,7 @@ var (
 	// output format (yaml or short)
 	outputFormat string
 
-	loggingOptions = log.NewOptions()
+	loggingOptions = log.DefaultOptions()
 
 	rootCmd = &cobra.Command{
 		Use:               "istioctl",
@@ -644,7 +644,7 @@ func newClient() (*crd.Client, error) {
 	// TODO: use model.IstioConfigTypes once model.IngressRule is deprecated
 	return crd.NewClient(kubeconfig, model.ConfigDescriptor{
 		model.RouteRule,
-		model.V1alpha2RouteRule,
+		model.VirtualService,
 		model.Gateway,
 		model.EgressRule,
 		model.ExternalService,
