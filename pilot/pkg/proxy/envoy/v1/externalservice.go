@@ -130,7 +130,7 @@ func BuildExternalServiceCluster(mesh *meshconfig.MeshConfig,
 	}
 
 	// Use host address if discovery type DNS and no endpoints are provided
-	if discovery == routingv2.ExternalService_DNS && len(endpoints) == 0 {
+	if discovery == networking.ExternalService_DNS && len(endpoints) == 0 {
 		url := fmt.Sprintf("tcp://%s:%d", address, port.Port)
 		hosts = append(hosts, Host{URL: url})
 	}

@@ -68,17 +68,6 @@ func VerifySecrets(t *testing.T, response *api.DiscoveryResponse) {
 }
 
 func TestSingleUdsPath(t *testing.T) {
-<<<<<<< HEAD
-	tmpdir, _ := ioutil.TempDir("", "uds")
-	udsPath := filepath.Join(tmpdir, "test_path")
-	server, err := NewSDSServer(udsPath)
-	if err != nil {
-		t.Fatalf("Unexpected Error: %v", err)
-	}
-	if server == nil {
-		t.Fatalf("Fail to create SDSServer")
-	}
-=======
 	server := NewSDSServer()
 
 	tmpdir, _ := ioutil.TempDir("", "uds")
@@ -88,7 +77,6 @@ func TestSingleUdsPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected Error: %v", err)
 	}
->>>>>>> master
 
 	VerifySecrets(t, FetchSecrets(t, udsPath))
 }
