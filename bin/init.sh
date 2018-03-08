@@ -120,18 +120,22 @@ if [ ! -f "$ISTIO_ENVOY_DEBUG_PATH" ] || [ ! -f "$ISTIO_ENVOY_RELEASE_PATH" ] ; 
     # Download debug envoy binary.
     mkdir -p $ISTIO_ENVOY_DEBUG_DIR
     pushd $ISTIO_ENVOY_DEBUG_DIR
-    echo "Downloading envoy debug artifact: ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_DEBUG_URL}"
-    time ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_DEBUG_URL} | tar xz
-    cp usr/local/bin/envoy $ISTIO_ENVOY_DEBUG_PATH
+    #echo "Downloading envoy debug artifact: ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_DEBUG_URL}"
+    #time ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_DEBUG_URL} | tar xz
+    # POC - out own istio
+
+    echo "Coyping envoy debug artifact"
+    cp ~/go/src/istio.io/proxy/bazel-bin/src/envoy/envoy $ISTIO_ENVOY_DEBUG_PATH
     rm -rf usr
     popd
 
     # Download release envoy binary.
     mkdir -p $ISTIO_ENVOY_RELEASE_DIR
     pushd $ISTIO_ENVOY_RELEASE_DIR
-    echo "Downloading envoy release artifact: ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_RELEASE_URL}"
-    time ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_RELEASE_URL} | tar xz
-    cp usr/local/bin/envoy $ISTIO_ENVOY_RELEASE_PATH
+    #echo "Downloading envoy release artifact: ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_RELEASE_URL}"
+    #time ${DOWNLOAD_COMMAND} ${ISTIO_ENVOY_RELEASE_URL} | tar xz
+    echo "Coyping envoy release artifact"
+    cp ~/go/src/istio.io/proxy/bazel-bin/src/envoy/envoy $ISTIO_ENVOY_RELEASE_PATH
     rm -rf usr
     popd
 
