@@ -2,6 +2,13 @@ FROM ubuntu:xenial
 # Do not add more stuff to this list that isn't small or critically useful.
 # If you occasionally need something on the container do
 # sudo apt-get update && apt-get whichever
+
+#Setup proxy - remove this section if you are outside the HP Network
+#------------------------------------------------------------
+ENV http_proxy http://web-proxy.corp.hp.com:8088
+ENV https_proxy http://web-proxy.corp.hp.com:8088
+#------------------------------------------------------------
+
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
       curl \
